@@ -1,0 +1,33 @@
+{
+  "name": "ishikawasake_designweb",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.112.1",
+    "@react-three/fiber": "^8.17.7",
+    "@react-three/postprocessing": "^2.16.2",
+    "axios": "^1.7.7",
+    "glslify-loader": "^2.0.0",
+    "leva": "^0.9.35",
+    "meshline": "^3.3.1",
+    "next": "14.2.7",
+    "next-video": "^1.1.4",
+    "raw-loader": "^4.0.2",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-icons": "^5.3.0",
+    "three": "^0.168.0"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "14.2.7",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1"
+  }
+}
