@@ -1,4 +1,4 @@
-# EXPLACE_RP_Website
+# Nextjs_R3F_Portfolio_Website
 A shared repository for the team developing Regionport's website.
 
 # Setup Next.js Project:
