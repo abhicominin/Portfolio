@@ -2,13 +2,16 @@ import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import grassFragmentShader from '../Shaders/grassfragment.glsl'
+import grassFragmentShaderadv from '../Shaders/grassfragmentadvanced.glsl'
 import grassVertexShader from '../Shaders/grassvertex.glsl'
+import grassVertexShaderadv from '../Shaders/grassvertexadvanced.glsl'
 
-const PLANE_SIZE = 35
-const BLADE_COUNT = 100000
+
+const PLANE_SIZE = 40
+const BLADE_COUNT = 110000
 const BLADE_WIDTH = 0.2
 const BLADE_HEIGHT = 3.4
-const BLADE_HEIGHT_VARIATION = 1.5
+const BLADE_HEIGHT_VARIATION = 1.0
 
 export function Grass(props) {
   const { gl, scene } = useThree()
@@ -22,8 +25,8 @@ export function Grass(props) {
   // Create the ShaderMaterial and pass the uniforms
   const grassMaterial = useMemo(() => new THREE.ShaderMaterial({
     uniforms: grassUniforms,
-    vertexShader: grassVertexShader,
-    fragmentShader: grassFragmentShader,
+    vertexShader: grassVertexShaderadv,
+    fragmentShader: grassFragmentShaderadv,
     side: THREE.DoubleSide,
     vertexColors: true
   }), [grassUniforms])
@@ -80,7 +83,7 @@ export function Grass(props) {
   useFrame(() => {
     if (meshRef.current) {
       const elapsedTime = (Date.now() - startTime) * 1.3
-      console.log("Elapsed Time: ", elapsedTime) // Ensure this is updating
+      // console.log("Elapsed Time: ", elapsedTime) // Ensure this is updating
       meshRef.current.material.uniforms.iTime.value = elapsedTime
       meshRef.current.material.needsUpdate = true // Ensure material gets updated
     }
@@ -100,8 +103,8 @@ function easeOutQuad(x) {
 }
 
 function generateBlade(center, vArrOffset, uv) {
-  const MID_WIDTH = BLADE_WIDTH * 0.5;
-  const TIP_OFFSET = 0.7;
+  const MID_WIDTH = BLADE_WIDTH * 0.7;
+  const TIP_OFFSET = 0.5;
 
   // Calculate distance from the center in the XZ plane (ignoring Y-axis)
   const distanceFromCenter = Math.sqrt(center.x * center.x + center.z * center.z);
@@ -111,7 +114,7 @@ function generateBlade(center, vArrOffset, uv) {
   const distanceFactor = Math.min(distanceFromCenter / maxDistance, 1); // Normalize distance to [0, 1]
   const easingFactor = easeOutQuad(1 - distanceFactor); // Eased height reduction
 
-  const MIN_HEIGHT = 1.0; // Minimum height for grass at the edges
+  const MIN_HEIGHT = 2.5; // Minimum height for grass at the edges
 
   // Apply BLADE_HEIGHT_VARIATION after easing
   const randomHeight = BLADE_HEIGHT + Math.random() * BLADE_HEIGHT_VARIATION;

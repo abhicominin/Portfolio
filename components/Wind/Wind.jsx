@@ -18,7 +18,7 @@ function Lines({ dash, colors, radius = 50 }) {
   const line = useMemo(() => {
     const points = []
     const spiralRadius = 7
-    const turns = 4
+    const turns = 3
     const height = 20
     const numPointsPerTurn = 4
     const totalPoints = turns * numPointsPerTurn
@@ -35,7 +35,7 @@ function Lines({ dash, colors, radius = 50 }) {
 
     return {
       color: colors[0],
-      width: 1,
+      width: 3,
       speed: Math.max(0.1, 1 * Math.random()),
       initialCurve: points,  // Store the initial static points for animation
       curve: points.flatMap((point) => point.toArray())

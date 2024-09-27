@@ -100,7 +100,7 @@
 }
 
 .toppage {
-  filter: contrast(1.37);
+  /* filter: contrast(0.0); */
 }
 
 .ourlogo {
