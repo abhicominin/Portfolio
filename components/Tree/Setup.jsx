@@ -17,7 +17,7 @@ export function Setup(props) {
     uBaseColor: { value: new Color('#FFCBCB') },
     uAmbientLightColor: { value: new Color('#050505') },
     uDirLightColor: { value: new Color('white') },
-    uDirLightPos: { value: new Vector3(100, 100, 100) },
+    uDirLightPos: { value: new Vector3(8,5,-5) },
     uLineColor1: { value: new Color('#808080') },
     uLineColor2: { value: new Color('black') }
   }), []);
@@ -26,8 +26,8 @@ export function Setup(props) {
   const uniformsghibli = useMemo(() => ({
     uTime: { value: 0.0 }, // Time uniform for animation
     colorMap: { value: props.colors }, // Color map for shading
-    brightnessThresholds: { value: [0.3, 0.25, 0.03, 0.01] }, // Brightness levels
-    lightPosition: { value: new Vector3(100, 100, 100) }, // Light source position
+    brightnessThresholds: { value: [0.8, 0.1, 0.03, 0.01] }, // Brightness levels
+    lightPosition: { value: new Vector3(20,10,-15) }, // Light source position
     windDir: { value: new Vector3(1, 0, 0) }, // Wind direction (for foliage animation)
     windPower: { value: 1.0 }, // Wind power affecting sway
     branchNoise: { value: Math.random() * 10 }, // Random noise for variation
@@ -45,7 +45,7 @@ export function Setup(props) {
   });
 
   return (
-    <group {...props} dispose={null} scale={viewport.width / 45}>
+    <group {...props} dispose={null} scale={1.5}>
       <mesh
         ref={foliageref}
         name="Foliage"
@@ -67,7 +67,7 @@ export function Setup(props) {
         material={materials['Material.001']}
         rotation={[0, -1.51, 0]}
       >
-        <meshToonMaterial color={'#FEB941'} />
+        <meshToonMaterial color={'#DD761C'} />
       </mesh>
     </group>
   );

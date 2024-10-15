@@ -30,7 +30,7 @@ void main() {
   float centerDistance = 0.05;
 
   // Modify the blade's animation based on its random factor
-  float swaySpeed = 250.0 + randomFactor * 200.0;  // Random sway speed for each blade
+  float swaySpeed = 250.0 + randomFactor * 500.0;  // Random sway speed for each blade
   float swayAmplitude = 1.5 + randomFactor * 0.2;  // Random sway amplitude for each blade
 
   // Time-based sway using the random factor and time

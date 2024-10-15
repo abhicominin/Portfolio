@@ -1,3 +1,4 @@
+#include <fog_pars_fragment>
 uniform sampler2D texture1;
 uniform sampler2D textures[4];
 
@@ -13,4 +14,5 @@ void main() {
   color = mix(color, texture2D(textures[1], cloudUV).rgb, 0.4);
   gl_FragColor.rgb = color;
   gl_FragColor.a = 3.;
+  #include <fog_fragment>
 }

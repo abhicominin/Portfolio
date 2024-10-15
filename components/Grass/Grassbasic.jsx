@@ -4,11 +4,17 @@ import { useFrame, useThree } from '@react-three/fiber'
 import grassFragmentShader from '../Shaders/grassfragment.glsl'
 import grassVertexShader from '../Shaders/grassvertex.glsl'
 
-const PLANE_SIZE = 25
-const BLADE_COUNT = 40000
-const BLADE_WIDTH = 0.3
+// Rectangle corner points
+const p1 = new THREE.Vector3(-61.2, 0, -17.4); // Bottom left
+const p2 = new THREE.Vector3(67.6, 0, -17.4);  // Bottom right
+const p3 = new THREE.Vector3(-61.2, 0, -4.56);  // Top left
+const p4 = new THREE.Vector3(67.6, 0, -4.56);   // Top right
+
+const BLADE_COUNT = 30000
+const BLADE_WIDTH = 0.2
 const BLADE_HEIGHT = 3.0
 const BLADE_HEIGHT_VARIATION = 2.5
+const yOffset = 0.77; // To match previous adjustments
 
 export function Grassbasic(props) {
   const { gl, scene } = useThree()
@@ -37,20 +43,10 @@ export function Grassbasic(props) {
 
     for (let i = 0; i < BLADE_COUNT; i++) {
       const VERTEX_COUNT = 5
-      const surfaceMin = PLANE_SIZE / 2 * -1
-      const surfaceMax = PLANE_SIZE / 2
-      const radius = PLANE_SIZE / 2
+      const uv = [Math.random(), Math.random()]
 
-      const r = radius * Math.sqrt(Math.random())
-      const theta = Math.random() * 2 * Math.PI
-      const x = r * Math.cos(theta)
-      const y = r * Math.sin(theta)
-      const pos = new THREE.Vector3(x, -15.5, y)
-
-      const uv = [
-        convertRange(pos.x, surfaceMin, surfaceMax, 0, 1),
-        convertRange(pos.z, surfaceMin, surfaceMax, 0, 1)
-      ]
+      // Generate random point within the rectangle
+      const pos = randomPointInRectangle(p1, p2, p3, p4, uv[0], uv[1])
 
       const blade = generateBlade(pos, i * VERTEX_COUNT, uv)
       blade.verts.forEach(vert => {
@@ -80,9 +76,8 @@ export function Grassbasic(props) {
   useFrame(() => {
     if (meshRef.current) {
       const elapsedTime = (Date.now() - startTime) * 1.3
-      console.log("Elapsed Time: ", elapsedTime) // Ensure this is updating
       meshRef.current.material.uniforms.iTime.value = elapsedTime
-      meshRef.current.material.needsUpdate = true // Ensure material gets updated
+      meshRef.current.material.needsUpdate = true
     }
   })
 
@@ -91,8 +86,20 @@ export function Grassbasic(props) {
   )
 }
 
-function convertRange(val, oldMin, oldMax, newMin, newMax) {
-  return (((val - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin
+// Linear interpolation to get random points inside the rectangular region
+function randomPointInRectangle(p1, p2, p3, p4, u, v) {
+  const point = new THREE.Vector3()
+
+  // Simple linear interpolation formula:
+  const bottom = p1.clone().lerp(p2, u)
+  const top = p3.clone().lerp(p4, u)
+
+  point.lerpVectors(bottom, top, v)
+
+  // Add yOffset to push the grass slab up
+  point.y = yOffset
+
+  return point
 }
 
 function generateBlade(center, vArrOffset, uv) {

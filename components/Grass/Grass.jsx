@@ -2,31 +2,28 @@ import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import grassFragmentShader from '../Shaders/grassfragment.glsl'
-import grassFragmentShaderadv from '../Shaders/grassfragmentadvanced.glsl'
 import grassVertexShader from '../Shaders/grassvertex.glsl'
-import grassVertexShaderadv from '../Shaders/grassvertexadvanced.glsl'
 
+const PLANE_SIZE = 25
+const BLADE_COUNT = 40000
+const BLADE_WIDTH = 0.3
+const BLADE_HEIGHT = 3.0
+const BLADE_HEIGHT_VARIATION = 2.5
 
-const PLANE_SIZE = 40
-const BLADE_COUNT = 110000
-const BLADE_WIDTH = 0.2
-const BLADE_HEIGHT = 3.4
-const BLADE_HEIGHT_VARIATION = 1.0
-
-export function Grass(props) {
+export function Grassbasic(props) {
   const { gl, scene } = useThree()
   
   // Define the uniforms with the iTime uniform for animation
   const grassUniforms = useMemo(() => ({
     iTime: { value: 0.0 }, // Time uniform
-    textures: { value: [new THREE.TextureLoader().load('/grassfour.jpg'), new THREE.TextureLoader().load('/shadow.png')] },
+    textures: { value: [new THREE.TextureLoader().load('/grassfour.jpg'), new THREE.TextureLoader().load('/cloud.jpg')] },
   }), [])
 
   // Create the ShaderMaterial and pass the uniforms
   const grassMaterial = useMemo(() => new THREE.ShaderMaterial({
     uniforms: grassUniforms,
-    vertexShader: grassVertexShaderadv,
-    fragmentShader: grassFragmentShaderadv,
+    vertexShader: grassVertexShader,
+    fragmentShader: grassFragmentShader,
     side: THREE.DoubleSide,
     vertexColors: true
   }), [grassUniforms])
@@ -83,14 +80,14 @@ export function Grass(props) {
   useFrame(() => {
     if (meshRef.current) {
       const elapsedTime = (Date.now() - startTime) * 1.3
-      // console.log("Elapsed Time: ", elapsedTime) // Ensure this is updating
+      console.log("Elapsed Time: ", elapsedTime) // Ensure this is updating
       meshRef.current.material.uniforms.iTime.value = elapsedTime
       meshRef.current.material.needsUpdate = true // Ensure material gets updated
     }
   })
 
   return (
-    <mesh ref={meshRef} receiveShadow material={grassMaterial} geometry={geom} />
+    <mesh ref={meshRef} material={grassMaterial} geometry={geom} />
   )
 }
 
@@ -98,46 +95,28 @@ function convertRange(val, oldMin, oldMax, newMin, newMax) {
   return (((val - oldMin) * (newMax - newMin)) / (oldMax - oldMin)) + newMin
 }
 
-function easeOutQuad(x) {
-  return 1 - (1 - x) * (1 - x); // Quadratic ease-out function for smooth falloff
-}
-
 function generateBlade(center, vArrOffset, uv) {
-  const MID_WIDTH = BLADE_WIDTH * 0.7;
-  const TIP_OFFSET = 0.5;
+  const MID_WIDTH = BLADE_WIDTH * 0.5
+  const TIP_OFFSET = 0.1
+  const height = BLADE_HEIGHT + (Math.random() * BLADE_HEIGHT_VARIATION)
+  const yaw = Math.random() * Math.PI * 2
+  const yawUnitVec = new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw))
+  const tipBend = Math.random() * Math.PI * 2
+  const tipBendUnitVec = new THREE.Vector3(Math.sin(tipBend), 0, -Math.cos(tipBend))
 
-  // Calculate distance from the center in the XZ plane (ignoring Y-axis)
-  const distanceFromCenter = Math.sqrt(center.x * center.x + center.z * center.z);
+  const bl = new THREE.Vector3().addVectors(center, yawUnitVec.clone().multiplyScalar(BLADE_WIDTH / 2))
+  const br = new THREE.Vector3().addVectors(center, yawUnitVec.clone().multiplyScalar(-BLADE_WIDTH / 2))
+  const tl = new THREE.Vector3().addVectors(center, yawUnitVec.clone().multiplyScalar(MID_WIDTH / 2))
+  const tr = new THREE.Vector3().addVectors(center, yawUnitVec.clone().multiplyScalar(-MID_WIDTH / 2))
+  const tc = new THREE.Vector3().addVectors(center, tipBendUnitVec.clone().multiplyScalar(TIP_OFFSET))
 
-  // Scale the height based on the distance with easing falloff
-  const maxDistance = PLANE_SIZE / 2;
-  const distanceFactor = Math.min(distanceFromCenter / maxDistance, 1); // Normalize distance to [0, 1]
-  const easingFactor = easeOutQuad(1 - distanceFactor); // Eased height reduction
+  tl.y += height / 2
+  tr.y += height / 2
+  tc.y += height
 
-  const MIN_HEIGHT = 2.5; // Minimum height for grass at the edges
-
-  // Apply BLADE_HEIGHT_VARIATION after easing
-  const randomHeight = BLADE_HEIGHT + Math.random() * BLADE_HEIGHT_VARIATION;
-  const height = MIN_HEIGHT + (randomHeight - MIN_HEIGHT) * easingFactor;
-
-  const yaw = Math.random() * Math.PI * 2;
-  const yawUnitVec = new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw));
-  const tipBend = Math.random() * Math.PI * 2;
-  const tipBendUnitVec = new THREE.Vector3(Math.sin(tipBend), 0, -Math.cos(tipBend));
-
-  const bl = new THREE.Vector3().addVectors(center, yawUnitVec.clone().multiplyScalar(BLADE_WIDTH / 2));
-  const br = new THREE.Vector3().addVectors(center, yawUnitVec.clone().multiplyScalar(-BLADE_WIDTH / 2));
-  const tl = new THREE.Vector3().addVectors(center, yawUnitVec.clone().multiplyScalar(MID_WIDTH / 2));
-  const tr = new THREE.Vector3().addVectors(center, yawUnitVec.clone().multiplyScalar(-MID_WIDTH / 2));
-  const tc = new THREE.Vector3().addVectors(center, tipBendUnitVec.clone().multiplyScalar(TIP_OFFSET));
-
-  tl.y += height / 2;
-  tr.y += height / 2;
-  tc.y += height;
-
-  const black = [0, 0, 0];
-  const gray = [0.5, 0.5, 0.5];
-  const white = [1.0, 1.0, 1.0];
+  const black = [0, 0, 0]
+  const gray = [0.5, 0.5, 0.5]
+  const white = [1.0, 1.0, 1.0]
 
   const verts = [
     { pos: bl.toArray(), uv, color: black },
@@ -145,13 +124,13 @@ function generateBlade(center, vArrOffset, uv) {
     { pos: tr.toArray(), uv, color: gray },
     { pos: tl.toArray(), uv, color: gray },
     { pos: tc.toArray(), uv, color: white }
-  ];
+  ]
 
   const indices = [
     vArrOffset, vArrOffset + 1, vArrOffset + 2,
     vArrOffset + 2, vArrOffset + 4, vArrOffset + 3,
     vArrOffset + 3, vArrOffset, vArrOffset + 2
-  ];
+  ]
 
-  return { verts, indices };
+  return { verts, indices }
 }

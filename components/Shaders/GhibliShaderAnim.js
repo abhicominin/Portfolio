@@ -23,7 +23,7 @@ export const GhibliShaderAnim = {
       ],
     },
     brightnessThresholds: {
-      value: [0.3, 0.25, 0.01, 0.01],
+      value: [0.5, 0.25, 0.01, 0.01],
     },
     lightPosition: { value: new Vector3(10, 40, 30) },
     uTime: { value: 0.0 }, // Time uniform
